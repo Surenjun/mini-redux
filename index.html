@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>mini-redux</title>
+</head>
+<body>
+
+<script type="module">
+    import {createStore, combineReducers} from "./src/redux"
+    import info from './src/reducers/info.js';
+    import count from './src/reducers/count.js';
+    import loggerMiddleware from './src/middlewares/loggerMiddleware.js';
+    import exceptiontimeMiddleware from './src/middlewares/exceptiontimeMiddleware.js'
+
+
+    const reducers = combineReducers({
+        count,
+        info,
+    });
+
+    let initialState = {
+        counter: {
+            count: 0,
+        },
+        info: {
+            name: '',
+            description: '',
+        },
+    };
+
+    const store = createStore(reducers, initialState);
+    const next = store.dispatch;
+    const exception = exceptiontimeMiddleware(store);
+    const logger = loggerMiddleware(store);
+
+    store.dispatch = exception(logger(next));
+
+    store.subscribe(() => {
+        const state = store.getState();
+    });
+
+    store.dispatch({
+        type: 'INCREMENT',
+    });
+
+
+</script>
+</body>
+
+</html>
